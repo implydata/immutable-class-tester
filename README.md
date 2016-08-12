@@ -1,23 +1,8 @@
-# Immutable Class
+# Immutable Class Tester
 
-A little library to facilitate creating and testing serializable, immutable classes.
+A little library to facilitate the testing of [immutable classes](https://github.com/implydata/immutable-class).
 
 This library is really just a set of templates and testing tools to allow for quick construction of immutable classes.
-
-## Templates
-
-An object `Blah` is considered a immutable class of it meats the following criteria:
-
-- It is a JS 'class' that starts with an uppercase letter
-- It has a static `Blah.isBlah` method for checking if something is an instance of the given class
-- It has a static `Blah.fromJS` method for deserializing classes
-- It has an instance `blah.valueOf` method that return a minimally serialized object (preserving all sub classes as immutable classes)
-- It has an instance `blah.toJS` method that return a fully serialized object (recursively serializing all sub classes)
-- It has an instance `blah.toJSON` method that returns the same as the toJS method allowing the object to be passed into `JSON.stringify`
-- It has an instance `blah.toString` method that is implemented in some way (and returns a `string`)
-- It has an instance `blah.equals` method that can be used to compare this object to other classes to check for equivalence.
-
-## Testing tools
 
 Immutable Class provides one testing function for testing potential immutable classes: `testImmutableClass`
 
