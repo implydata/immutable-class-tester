@@ -22,7 +22,7 @@ export interface TesterOptions {
   context?: any;
 }
 
-const PROPERTY_KEYS = ['name', 'defaultValue', 'optional', 'possibleValues', 'validate', 'immutableClass', 'equal'];
+const PROPERTY_KEYS = ['name', 'defaultValue', 'possibleValues', 'validate', 'immutableClass', 'immutableClassArray', 'immutableClassLookup', 'equal'];
 
 /**
  * Checks it a given Class conforms to the Immutable Class guidelines by applying it to a given set of instances
