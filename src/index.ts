@@ -31,7 +31,9 @@ const PROPERTY_KEYS = [
   'immutableClass',
   'immutableClassArray',
   'immutableClassLookup',
-  'equal'
+  'equal',
+  'toJS',
+  'type'
 ];
 
 /**
