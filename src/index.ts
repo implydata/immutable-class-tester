@@ -27,11 +27,12 @@ const PROPERTY_KEYS = [
   'defaultValue',
   'possibleValues',
   'validate',
-  'isDate',
   'immutableClass',
   'immutableClassArray',
   'immutableClassLookup',
-  'equal'
+  'equal',
+  'toJS',
+  'type'
 ];
 
 /**
