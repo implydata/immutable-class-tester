@@ -4,7 +4,8 @@
   "description": "A helper for testing immutable classes",
   "keywords": [
     "immutable",
-    "class"
+    "class",
+    "tester"
   ],
   "author": {
     "name": "Vadim Ogievetsky",
@@ -17,7 +18,11 @@
   },
   "main": "build/index.js",
   "typings": "build/index.d.ts",
+  "files": [
+    "build/"
+  ],
   "scripts": {
+    "prepublish": "node_modules/.bin/tdi",
     "compile": "./compile",
     "test": "./run-tests"
   },
@@ -25,8 +30,9 @@
     "chai": "3.5.0"
   },
   "devDependencies": {
-    "@types/chai": "3.4.30",
+    "@types/mocha": "2.2.32",
     "mocha": "3.0.2",
-    "typescript": "2.0.0"
+    "tdi": "0.1.2",
+    "typescript": "2.0.3"
   }
 }
