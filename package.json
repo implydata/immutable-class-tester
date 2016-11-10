@@ -1,6 +1,6 @@
 {
   "name": "immutable-class-tester",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "A helper for testing immutable classes",
   "keywords": [
     "immutable",
@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@types/mocha": "2.2.32",
-    "mocha": "3.0.2",
-    "tdi": "0.1.2",
-    "typescript": "2.0.3"
+    "mocha": "3.1.2",
+    "tdi": "0.1.6",
+    "typescript": "2.0.8"
   }
 }

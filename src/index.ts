@@ -51,14 +51,11 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
 
   // Check class name
   var className = ClassFn.name;
-  if (className.length <= 1) throw new Error(`Class must have a name longer than 1 letter`);
-  if (className[0] !== className[0].toUpperCase()) throw new Error(`Class name must start with a capital letter`);
+  if (className.length < 1) throw new Error(`Class must have a name of at least 1 letter`);
   var instanceName = className[0].toLowerCase() + className.substring(1);
 
   // Check static methods
-  var isClassName = `is${className}`;
   expect(ClassFn.fromJS, `${className}.fromJS should exist`).to.be.a('function');
-  expect(ClassFn[isClassName], `${className}.${isClassName} should exist`).to.be.a('function');
 
   // Check instance methods
   var instance = ClassFn.fromJS(objects[0], context);
@@ -68,12 +65,6 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
   expect(instance.toJS, `Instance should have a toJS function`).to.be.a('function');
   expect(instance.toJSON, `Instance should have a toJSON function`).to.be.a('function');
   expect(instance.equals, `Instance should have an equals function`).to.be.a('function');
-
-  // Check isClass
-  var isClass: Function = ClassFn[isClassName];
-  expect(isClass(null), `${isClassName} should fail on null`).to.equal(false);
-  expect(isClass([]), `${isClassName} should fail on []`).to.equal(false);
-  expect(isClass(''), `${isClassName} should fail on ''`).to.equal(false);
 
   // Check properties
   if (ClassFn.PROPERTIES) { // Only new style classes have these
@@ -100,11 +91,6 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
       inst,
       `${className}.fromJS did not return a ${className} instance ${where}`
     ).to.be.instanceOf(ClassFn);
-
-    expect(
-      isClass(inst),
-      `${isClassName}.${isClassName} failed on something created with toJS ${where}`
-    ).to.equal(true);
 
     expect(
       inst.toString(),
