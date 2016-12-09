@@ -23,9 +23,9 @@ export function isInstanceOf(thing: any, constructor: any): boolean {
   if (typeof constructor !== 'function') throw new TypeError("constructor must be a function");
   if (thing instanceof constructor) return true;
   if (thing == null) return false;
-  var constructorName: string = constructor.name;
+  let constructorName: string = constructor.name;
   if (!constructorName) return false;
-  var thingProto: any = thing.__proto__;
+  let thingProto: any = thing.__proto__;
   while (thingProto && thingProto.constructor) {
     if (thingProto.constructor.name === constructorName) return true;
     thingProto = thingProto.__proto__;
@@ -122,7 +122,7 @@ class AnimalBadToJS {
 
 class AnimalWithContext {
   static fromJS(name: string, animalWeights: any) {
-    var w: number = animalWeights[name];
+    let w: number = animalWeights[name];
     if (!w) throw new Error("unknown animal (it has no weight)");
     return new AnimalWithContext({
       n: name,
@@ -205,7 +205,7 @@ describe("testImmutableClass", () => {
   });
 
   it("works for AnimalWithContext class (with context)", () => {
-    var animalWeights = {
+    let animalWeights = {
       "Koala": 5,
       "Snake": 4,
       "Dog": 12

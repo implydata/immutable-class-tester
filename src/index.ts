@@ -46,20 +46,20 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
   if (!Array.isArray(objects) || !objects.length) {
     throw new TypeError(`objects must be a non-empty array of js to test`);
   }
-  var newThrows = options.newThrows;
-  var context = options.context;
+  let newThrows = options.newThrows;
+  let context = options.context;
 
   // Check class name
-  var className = ClassFn.name;
+  let className = ClassFn.name;
   if (className.length < 1) throw new Error(`Class must have a name of at least 1 letter`);
-  var instanceName = className[0].toLowerCase() + className.substring(1);
+  let instanceName = className[0].toLowerCase() + className.substring(1);
 
   // Check static methods
   expect(ClassFn.fromJS, `${className}.fromJS should exist`).to.be.a('function');
 
   // Check instance methods
-  var instance = ClassFn.fromJS(objects[0], context);
-  var objectProto = Object.prototype;
+  let instance = ClassFn.fromJS(objects[0], context);
+  let objectProto = Object.prototype;
   expect(instance.valueOf, `Instance should implement valueOf`).to.not.equal(objectProto.valueOf);
   expect(instance.toString, `Instance should implement toString`).to.not.equal(objectProto.toString);
   expect(instance.toJS, `Instance should have a toJS function`).to.be.a('function');
@@ -78,13 +78,13 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
   }
 
   // Preserves
-  for (var i = 0; i < objects.length; i++) {
-    var where = `[in object ${i}]`;
-    var objectJSON = JSON.stringify(objects[i]);
-    var objectCopy1 = JSON.parse(objectJSON);
-    var objectCopy2 = JSON.parse(objectJSON);
+  for (let i = 0; i < objects.length; i++) {
+    let where = `[in object ${i}]`;
+    let objectJSON = JSON.stringify(objects[i]);
+    let objectCopy1 = JSON.parse(objectJSON);
+    let objectCopy2 = JSON.parse(objectJSON);
 
-    var inst = ClassFn.fromJS(objectCopy1, context);
+    let inst = ClassFn.fromJS(objectCopy1, context);
     expect(objectCopy1, `${className}.fromJS function modified its input :-(`).to.deep.equal(objectCopy2);
 
     expect(
@@ -112,14 +112,14 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
       `${className}.fromJS(obj).toJS() was not a fixed point (did not deep equal obj) ${where}`
     ).to.deep.equal(objects[i]);
 
-    var instValueOf = inst.valueOf();
+    let instValueOf = inst.valueOf();
     expect(
       inst.equals(instValueOf),
       `inst.equals(inst.valueOf()) ${where}`
     ).to.equal(false);
 
-    var instLazyCopy: any = {};
-    for (var key in inst) {
+    let instLazyCopy: any = {};
+    for (let key in inst) {
       if (!inst.hasOwnProperty(key)) continue;
       instLazyCopy[key] = inst[key];
     }
@@ -134,7 +134,7 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
         new ClassFn(instValueOf);
       }, `new ${className} did not throw as indicated ${where}`).to.throw(Error)
     } else {
-      var instValueCopy = new ClassFn(instValueOf);
+      let instValueCopy = new ClassFn(instValueOf);
       expect(
         inst.equals(instValueCopy),
         `new ${className}().toJS() is not equal to the original ${where}`
@@ -145,7 +145,7 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
       ).to.deep.equal(inst.toJS());
     }
 
-    var instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
+    let instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
     expect(inst.equals(instJSONCopy), `JS Copy does not equal original ${where}`).to.equal(true);
     expect(
       instJSONCopy.toJS(),
@@ -154,10 +154,10 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
   }
 
   // Objects are equal only to themselves
-  for (var j = 0; j < objects.length; j++) {
-    var objectJ = ClassFn.fromJS(objects[j], context);
-    for (var k = j; k < objects.length; k++) {
-      var objectK = ClassFn.fromJS(objects[k], context);
+  for (let j = 0; j < objects.length; j++) {
+    let objectJ = ClassFn.fromJS(objects[j], context);
+    for (let k = j; k < objects.length; k++) {
+      let objectK = ClassFn.fromJS(objects[k], context);
       expect(
         objectJ.equals(objectK),
         `Equality of objects ${j} and ${k} was wrong`

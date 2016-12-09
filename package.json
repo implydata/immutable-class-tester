@@ -30,9 +30,9 @@
     "chai": "3.5.0"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.32",
-    "mocha": "3.1.2",
-    "tdi": "0.1.6",
-    "typescript": "2.0.8"
+    "@types/mocha": "2.2.33",
+    "mocha": "3.2.0",
+    "tdi": "0.2.4",
+    "typescript": "2.1.4"
   }
 }
