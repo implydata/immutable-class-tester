@@ -16,6 +16,7 @@
  */
 
 import { expect } from "chai";
+import * as hasOwnProp from 'has-own-prop';
 
 export interface TesterOptions {
   newThrows?: boolean;
@@ -120,7 +121,7 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
 
     let instLazyCopy: any = {};
     for (let key in inst) {
-      if (!inst.hasOwnProperty(key)) continue;
+      if (!hasOwnProp(inst, key)) continue;
       instLazyCopy[key] = inst[key];
     }
 
