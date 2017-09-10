@@ -35,7 +35,8 @@ const PROPERTY_KEYS = [
   'toJS',
   'type',
   'contextTransform',
-  'preserveUndefined'
+  'preserveUndefined',
+  'emptyArrayIsOk'
 ];
 
 /**

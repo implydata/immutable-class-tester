@@ -27,13 +27,13 @@
     "test": "./run-tests"
   },
   "dependencies": {
-    "chai": "4.0.2",
+    "chai": "4.1.2",
     "has-own-prop": "1.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.41",
-    "mocha": "3.4.2",
-    "tdi": "0.3.10",
-    "typescript": "2.4.1"
+    "@types/mocha": "2.2.43",
+    "mocha": "3.5.1",
+    "tdi": "0.3.14",
+    "typescript": "2.5.2"
   }
 }
