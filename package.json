@@ -22,18 +22,18 @@
     "build/"
   ],
   "scripts": {
-    "prepublish": "node_modules/.bin/tdi",
+    "prepare": "tdi -q",
     "compile": "./compile",
     "test": "./run-tests"
   },
   "dependencies": {
     "chai": "4.1.2",
-    "has-own-prop": "1.0.0"
+    "has-own-prop": "1.0.1"
   },
   "devDependencies": {
-    "@types/mocha": "2.2.43",
-    "mocha": "3.5.1",
-    "tdi": "0.3.14",
-    "typescript": "2.5.2"
+    "@types/mocha": "5.2.2",
+    "mocha": "5.2.0",
+    "tdi": "0.5.6",
+    "typescript": "2.9.2"
   }
 }
