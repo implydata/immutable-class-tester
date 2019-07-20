@@ -1,6 +1,6 @@
 /*
  * Copyright 2014-2015 Metamarkets Group Inc.
- * Copyright 2015-2016 Imply Data, Inc.
+ * Copyright 2015-2019 Imply Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-import { expect } from "chai";
-import * as hasOwnProp from 'has-own-prop';
+import hasOwnProp from 'has-own-prop';
 
 export interface TesterOptions {
   newThrows?: boolean;
   context?: any;
 }
 
-const PROPERTY_KEYS = [
+const PROPERTY_KEYS: string[] = [
   'name',
   'defaultValue',
   'possibleValues',
@@ -36,7 +35,7 @@ const PROPERTY_KEYS = [
   'type',
   'contextTransform',
   'preserveUndefined',
-  'emptyArrayIsOk'
+  'emptyArrayIsOk',
 ];
 
 /**
@@ -45,7 +44,11 @@ const PROPERTY_KEYS = [
  * @param objects - An array of JS values to test on
  * @param options - Some testing options
  */
-export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], options: TesterOptions = {}) {
+export function testImmutableClass<TypeJS>(
+  ClassFn: any,
+  objects: TypeJS[],
+  options: TesterOptions = {},
+) {
   if (typeof ClassFn !== 'function') throw new TypeError(`ClassFn must be a constructor function`);
   if (!Array.isArray(objects) || !objects.length) {
     throw new TypeError(`objects must be a non-empty array of js to test`);
@@ -56,71 +59,52 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
   // Check class name
   let className = ClassFn.name;
   if (className.length < 1) throw new Error(`Class must have a name of at least 1 letter`);
-  let instanceName = className[0].toLowerCase() + className.substring(1);
 
   // Check static methods
-  expect(ClassFn.fromJS, `${className}.fromJS should exist`).to.be.a('function');
+  expect(typeof ClassFn.fromJS).toEqual('function');
 
   // Check instance methods
   let instance = ClassFn.fromJS(objects[0], context);
   let objectProto = Object.prototype;
-  expect(instance.valueOf, `Instance should implement valueOf`).to.not.equal(objectProto.valueOf);
-  expect(instance.toString, `Instance should implement toString`).to.not.equal(objectProto.toString);
-  expect(instance.toJS, `Instance should have a toJS function`).to.be.a('function');
-  expect(instance.toJSON, `Instance should have a toJSON function`).to.be.a('function');
-  expect(instance.equals, `Instance should have an equals function`).to.be.a('function');
+  expect(instance.valueOf).not.toEqual(objectProto.valueOf);
+  expect(instance.toString).not.toEqual(objectProto.toString);
+  expect(typeof instance.toJS).toEqual('function');
+  expect(typeof instance.toJSON).toEqual('function');
+  expect(typeof instance.equals).toEqual('function');
 
   // Check properties
-  if (ClassFn.PROPERTIES) { // Only new style classes have these
-    expect(ClassFn.PROPERTIES, 'PROPERTIES should be an array').to.be.an('array');
+  if (ClassFn.PROPERTIES) {
+    // Only new style classes have these
+    expect(Array.isArray(ClassFn.PROPERTIES)).toBeTruthy();
     ClassFn.PROPERTIES.forEach((property: any) => {
       Object.keys(property).forEach(key => {
-        expect(PROPERTY_KEYS).to.include(key);
-        expect(property.name).to.be.a('string');
-      })
+        expect(PROPERTY_KEYS.includes(key)).toBeTruthy();
+        expect(typeof property.name).toEqual('string');
+      });
     });
   }
 
   // Preserves
   for (let i = 0; i < objects.length; i++) {
-    let where = `[in object ${i}]`;
     let objectJSON = JSON.stringify(objects[i]);
     let objectCopy1 = JSON.parse(objectJSON);
     let objectCopy2 = JSON.parse(objectJSON);
 
     let inst = ClassFn.fromJS(objectCopy1, context);
-    expect(objectCopy1, `${className}.fromJS function modified its input :-(`).to.deep.equal(objectCopy2);
+    expect(objectCopy1).toEqual(objectCopy2);
 
-    expect(
-      inst,
-      `${className}.fromJS did not return a ${className} instance ${where}`
-    ).to.be.instanceOf(ClassFn);
+    expect(inst instanceof ClassFn).toBeTruthy();
 
-    expect(
-      inst.toString(),
-      `${instanceName}.toString() must return a string ${where}`
-    ).to.be.a('string');
+    expect(typeof inst.toString()).toEqual('string');
 
-    expect(
-      inst.equals(null),
-      `${instanceName}.equals(null) should be false ${where}`
-    ).to.equal(false);
+    expect(inst.equals(null)).toEqual(false);
 
-    expect(
-      inst.equals([]),
-      `${instanceName}.equals([]) should be false ${where}`
-    ).to.equal(false);
+    expect(inst.equals([])).toEqual(false);
 
-    expect(
-      inst.toJS(),
-      `${className}.fromJS(obj).toJS() was not a fixed point (did not deep equal obj) ${where}`
-    ).to.deep.equal(objects[i]);
+    expect(inst.toJS()).toEqual(objects[i]);
 
     let instValueOf = inst.valueOf();
-    expect(
-      inst.equals(instValueOf),
-      `inst.equals(inst.valueOf()) ${where}`
-    ).to.equal(false);
+    expect(inst.equals(instValueOf)).toEqual(false);
 
     let instLazyCopy: any = {};
     for (let key in inst) {
@@ -128,33 +112,21 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
       instLazyCopy[key] = inst[key];
     }
 
-    expect(
-      inst.equals(instLazyCopy),
-      `inst.equals(*an object with the same values*) ${where}`
-    ).to.equal(false);
+    expect(inst.equals(instLazyCopy)).toEqual(false);
 
     if (newThrows) {
       expect(() => {
         new ClassFn(instValueOf);
-      }, `new ${className} did not throw as indicated ${where}`).to.throw(Error)
+      }).toThrowError();
     } else {
       let instValueCopy = new ClassFn(instValueOf);
-      expect(
-        inst.equals(instValueCopy),
-        `new ${className}().toJS() is not equal to the original ${where}`
-      ).to.equal(true);
-      expect(
-        instValueCopy.toJS(),
-        `new ${className}(${instanceName}.valueOf()).toJS() returned something bad ${where}`
-      ).to.deep.equal(inst.toJS());
+      expect(inst.equals(instValueCopy)).toEqual(true);
+      expect(instValueCopy.toJS()).toEqual(inst.toJS());
     }
 
     let instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
-    expect(inst.equals(instJSONCopy), `JS Copy does not equal original ${where}`).to.equal(true);
-    expect(
-      instJSONCopy.toJS(),
-      `${className}.fromJS(JSON.parse(JSON.stringify(${instanceName}))).toJS() returned something bad ${where}`
-    ).to.deep.equal(inst.toJS());
+    expect(inst.equals(instJSONCopy)).toEqual(true);
+    expect(instJSONCopy.toJS()).toEqual(inst.toJS());
   }
 
   // Objects are equal only to themselves
@@ -162,10 +134,7 @@ export function testImmutableClass<TypeJS>(ClassFn: any, objects: TypeJS[], opti
     let objectJ = ClassFn.fromJS(objects[j], context);
     for (let k = j; k < objects.length; k++) {
       let objectK = ClassFn.fromJS(objects[k], context);
-      expect(
-        objectJ.equals(objectK),
-        `Equality of objects ${j} and ${k} was wrong`
-      ).to.equal(j === k);
+      expect(objectJ.equals(objectK)).toEqual(j === k);
     }
   }
 }

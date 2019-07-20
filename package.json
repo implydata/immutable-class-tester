@@ -22,18 +22,35 @@
     "build/"
   ],
   "scripts": {
-    "prepare": "tdi -q",
     "compile": "./compile",
-    "test": "./run-tests"
+    "test": "npm run tslint && jest --silent 2>&1",
+    "tslint": "./node_modules/.bin/tslint -c tslint.json --project tsconfig.json --formatters-dir ./node_modules/awesome-code-style/formatter 'src/**/*.ts?(x)'",
+    "tslint-fix": "npm run tslint -- --fix",
+    "tslint-changed-only": "git diff --diff-filter=ACMR --name-only | grep -E \\.tsx\\?$ | xargs ./node_modules/.bin/tslint -c tslint.json --project tsconfig.json --formatters-dir ./node_modules/awesome-code-style/formatter",
+    "tslint-fix-changed-only": "npm run tslint-changed-only -- --fix"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 100,
+    "endOfLine": "lf"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "**/?(*.)+(spec).ts?(x)"
+    ]
   },
   "dependencies": {
-    "chai": "4.1.2",
-    "has-own-prop": "1.0.1"
+    "has-own-prop": "^2.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "5.2.2",
-    "mocha": "5.2.0",
-    "tdi": "0.5.6",
-    "typescript": "2.9.2"
+    "@types/jest": "^24.0.15",
+    "awesome-code-style": "^1.4.2",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
   }
 }
