@@ -93,7 +93,7 @@ class AnimalBadToJS {
 
 class AnimalWithContext {
   static fromJS(name: string, animalWeights: any) {
-    let w: number = animalWeights[name];
+    const w: number = animalWeights[name];
     if (!w) throw new Error('unknown animal (it has no weight)');
     return new AnimalWithContext({
       n: name,
@@ -154,7 +154,7 @@ describe('testImmutableClass', () => {
   });
 
   it('works for AnimalWithContext class (with context)', () => {
-    let animalWeights = {
+    const animalWeights = {
       Koala: 5,
       Snake: 4,
       Dog: 12,

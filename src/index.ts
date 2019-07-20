@@ -53,19 +53,19 @@ export function testImmutableClass<TypeJS>(
   if (!Array.isArray(objects) || !objects.length) {
     throw new TypeError(`objects must be a non-empty array of js to test`);
   }
-  let newThrows = options.newThrows;
-  let context = options.context;
+  const newThrows = options.newThrows;
+  const context = options.context;
 
   // Check class name
-  let className = ClassFn.name;
+  const className = ClassFn.name;
   if (className.length < 1) throw new Error(`Class must have a name of at least 1 letter`);
 
   // Check static methods
   expect(typeof ClassFn.fromJS).toEqual('function');
 
   // Check instance methods
-  let instance = ClassFn.fromJS(objects[0], context);
-  let objectProto = Object.prototype;
+  const instance = ClassFn.fromJS(objects[0], context);
+  const objectProto = Object.prototype;
   expect(instance.valueOf).not.toEqual(objectProto.valueOf);
   expect(instance.toString).not.toEqual(objectProto.toString);
   expect(typeof instance.toJS).toEqual('function');
@@ -86,11 +86,11 @@ export function testImmutableClass<TypeJS>(
 
   // Preserves
   for (let i = 0; i < objects.length; i++) {
-    let objectJSON = JSON.stringify(objects[i]);
-    let objectCopy1 = JSON.parse(objectJSON);
-    let objectCopy2 = JSON.parse(objectJSON);
+    const objectJSON = JSON.stringify(objects[i]);
+    const objectCopy1 = JSON.parse(objectJSON);
+    const objectCopy2 = JSON.parse(objectJSON);
 
-    let inst = ClassFn.fromJS(objectCopy1, context);
+    const inst = ClassFn.fromJS(objectCopy1, context);
     expect(objectCopy1).toEqual(objectCopy2);
 
     expect(inst instanceof ClassFn).toBeTruthy();
@@ -103,11 +103,11 @@ export function testImmutableClass<TypeJS>(
 
     expect(inst.toJS()).toEqual(objects[i]);
 
-    let instValueOf = inst.valueOf();
+    const instValueOf = inst.valueOf();
     expect(inst.equals(instValueOf)).toEqual(false);
 
-    let instLazyCopy: any = {};
-    for (let key in inst) {
+    const instLazyCopy: any = {};
+    for (const key in inst) {
       if (!hasOwnProp(inst, key)) continue;
       instLazyCopy[key] = inst[key];
     }
@@ -116,24 +116,24 @@ export function testImmutableClass<TypeJS>(
 
     if (newThrows) {
       expect(() => {
-        new ClassFn(instValueOf);
+        return new ClassFn(instValueOf);
       }).toThrowError();
     } else {
-      let instValueCopy = new ClassFn(instValueOf);
+      const instValueCopy = new ClassFn(instValueOf);
       expect(inst.equals(instValueCopy)).toEqual(true);
       expect(instValueCopy.toJS()).toEqual(inst.toJS());
     }
 
-    let instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
+    const instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
     expect(inst.equals(instJSONCopy)).toEqual(true);
     expect(instJSONCopy.toJS()).toEqual(inst.toJS());
   }
 
   // Objects are equal only to themselves
   for (let j = 0; j < objects.length; j++) {
-    let objectJ = ClassFn.fromJS(objects[j], context);
+    const objectJ = ClassFn.fromJS(objects[j], context);
     for (let k = j; k < objects.length; k++) {
-      let objectK = ClassFn.fromJS(objects[k], context);
+      const objectK = ClassFn.fromJS(objects[k], context);
       expect(objectJ.equals(objectK)).toEqual(j === k);
     }
   }
