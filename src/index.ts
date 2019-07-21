@@ -16,6 +16,7 @@
  */
 
 import hasOwnProp from 'has-own-prop';
+import deepEqual from 'deep-equal';
 
 export interface TesterOptions {
   newThrows?: boolean;
@@ -59,52 +60,90 @@ export function testImmutableClass<TypeJS>(
   // Check class name
   const className = ClassFn.name;
   if (className.length < 1) throw new Error(`Class must have a name of at least 1 letter`);
+  const instanceName = className[0].toLowerCase() + className.substring(1);
 
   // Check static methods
-  expect(typeof ClassFn.fromJS).toEqual('function');
+  if (typeof ClassFn.fromJS !== 'function') throw new Error(`${className}.fromJS should exist`);
 
   // Check instance methods
   const instance = ClassFn.fromJS(objects[0], context);
   const objectProto = Object.prototype;
-  expect(instance.valueOf).not.toEqual(objectProto.valueOf);
-  expect(instance.toString).not.toEqual(objectProto.toString);
-  expect(typeof instance.toJS).toEqual('function');
-  expect(typeof instance.toJSON).toEqual('function');
-  expect(typeof instance.equals).toEqual('function');
+  if (instance.valueOf === objectProto.valueOf) {
+    throw new Error(`Instance should implement valueOf`);
+  }
+  if (instance.toString === objectProto.toString) {
+    throw new Error(`Instance should implement toString`);
+  }
+  if (typeof instance.toJS !== 'function') {
+    throw new Error(`Instance should have a toJS function`);
+  }
+  if (typeof instance.toJSON !== 'function') {
+    throw new Error(`Instance should have a toJSON function`);
+  }
+  if (typeof instance.equals !== 'function') {
+    throw new Error(`Instance should have an equals function`);
+  }
 
   // Check properties
   if (ClassFn.PROPERTIES) {
     // Only new style classes have these
-    expect(Array.isArray(ClassFn.PROPERTIES)).toBeTruthy();
-    ClassFn.PROPERTIES.forEach((property: any) => {
+    if (!Array.isArray(ClassFn.PROPERTIES)) {
+      throw new Error('PROPERTIES should be an array');
+    }
+    ClassFn.PROPERTIES.forEach((property: any, i: number) => {
+      if (typeof property.name !== 'string') {
+        throw new Error(`Property ${i} is missing a name`);
+      }
       Object.keys(property).forEach(key => {
-        expect(PROPERTY_KEYS.includes(key)).toBeTruthy();
-        expect(typeof property.name).toEqual('string');
+        if (!PROPERTY_KEYS.includes(key)) {
+          throw new Error(`PROPERTIES should include ${key}`);
+        }
       });
     });
   }
 
   // Preserves
   for (let i = 0; i < objects.length; i++) {
+    const where = `[in object ${i}]`;
     const objectJSON = JSON.stringify(objects[i]);
     const objectCopy1 = JSON.parse(objectJSON);
     const objectCopy2 = JSON.parse(objectJSON);
 
     const inst = ClassFn.fromJS(objectCopy1, context);
-    expect(objectCopy1).toEqual(objectCopy2);
+    if (!deepEqual(objectCopy1, objectCopy2)) {
+      throw new Error(`${className}.fromJS function modified its input :-(`);
+    }
 
-    expect(inst instanceof ClassFn).toBeTruthy();
+    if (!(inst instanceof ClassFn)) {
+      throw new Error(`${className}.fromJS did not return a ${className} instance ${where}`);
+    }
 
-    expect(typeof inst.toString()).toEqual('string');
+    if (typeof inst.toString() !== 'string') {
+      throw new Error(`${instanceName}.toString() must return a string ${where}`);
+    }
 
-    expect(inst.equals(null)).toEqual(false);
+    if (inst.equals(undefined) !== false) {
+      throw new Error(`${instanceName}.equals(undefined) should be false ${where}`);
+    }
 
-    expect(inst.equals([])).toEqual(false);
+    if (inst.equals(null as any) !== false) {
+      throw new Error(`${instanceName}.equals(null) should be false ${where}`);
+    }
 
-    expect(inst.toJS()).toEqual(objects[i]);
+    if (inst.equals([] as any) !== false) {
+      throw new Error(`${instanceName}.equals([]) should be false ${where}`);
+    }
+
+    if (!deepEqual(inst.toJS(), objects[i])) {
+      throw new Error(
+        `${className}.fromJS(obj).toJS() was not a fixed point (did not deep equal obj) ${where}`,
+      );
+    }
 
     const instValueOf = inst.valueOf();
-    expect(inst.equals(instValueOf)).toEqual(false);
+    if (inst.equals(instValueOf)) {
+      throw new Error(`inst.equals(inst.valueOf()) ${where}`);
+    }
 
     const instLazyCopy: any = {};
     for (const key in inst) {
@@ -112,21 +151,41 @@ export function testImmutableClass<TypeJS>(
       instLazyCopy[key] = inst[key];
     }
 
-    expect(inst.equals(instLazyCopy)).toEqual(false);
+    if (inst.equals(instLazyCopy)) {
+      throw new Error(`inst.equals(*an object with the same values*) ${where}`);
+    }
 
     if (newThrows) {
-      expect(() => {
-        return new ClassFn(instValueOf);
-      }).toThrowError();
+      let thrownError: Error | undefined;
+      try {
+        new ClassFn(instValueOf);
+      } catch (e) {
+        thrownError = e;
+      }
+      if (!thrownError) {
+        throw new Error(`new ${className} did not throw as indicated ${where}`);
+      }
     } else {
       const instValueCopy = new ClassFn(instValueOf);
-      expect(inst.equals(instValueCopy)).toEqual(true);
-      expect(instValueCopy.toJS()).toEqual(inst.toJS());
+      if (!inst.equals(instValueCopy)) {
+        throw new Error(`new ${className}().toJS() is not equal to the original ${where}`);
+      }
+      if (!deepEqual(instValueCopy.toJS(), inst.toJS())) {
+        throw new Error(
+          `new ${className}(${instanceName}.valueOf()).toJS() returned something bad ${where}`,
+        );
+      }
     }
 
     const instJSONCopy = ClassFn.fromJS(JSON.parse(JSON.stringify(inst)), context);
-    expect(inst.equals(instJSONCopy)).toEqual(true);
-    expect(instJSONCopy.toJS()).toEqual(inst.toJS());
+    if (!inst.equals(instJSONCopy)) {
+      throw new Error(`JS Copy does not equal original ${where}`);
+    }
+    if (!deepEqual(instJSONCopy.toJS(), inst.toJS())) {
+      throw new Error(
+        `${className}.fromJS(JSON.parse(JSON.stringify(${instanceName}))).toJS() returned something bad ${where}`,
+      );
+    }
   }
 
   // Objects are equal only to themselves
@@ -134,7 +193,9 @@ export function testImmutableClass<TypeJS>(
     const objectJ = ClassFn.fromJS(objects[j], context);
     for (let k = j; k < objects.length; k++) {
       const objectK = ClassFn.fromJS(objects[k], context);
-      expect(objectJ.equals(objectK)).toEqual(j === k);
+      if (objectJ.equals(objectK) !== Boolean(j === k)) {
+        throw new Error(`Equality of objects ${j} and ${k} was wrong`);
+      }
     }
   }
 }
