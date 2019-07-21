@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "compile": "./compile",
+    "pretest": "npm run compile",
     "test": "npm run tslint && jest --silent 2>&1",
     "tslint": "./node_modules/.bin/tslint -c tslint.json --project tsconfig.json --formatters-dir ./node_modules/awesome-code-style/formatter 'src/**/*.ts?(x)'",
     "tslint-fix": "npm run tslint -- --fix",
