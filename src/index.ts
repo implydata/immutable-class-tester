@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import hasOwnProp from 'has-own-prop';
 import deepEqual from 'deep-equal';
+import hasOwnProp from 'has-own-prop';
 
 export interface TesterOptions {
   newThrows?: boolean;
@@ -156,13 +156,14 @@ export function testImmutableClass<TypeJS>(
     }
 
     if (newThrows) {
+      let badInst: any;
       let thrownError: Error | undefined;
       try {
-        new ClassFn(instValueOf);
+        badInst = new ClassFn(instValueOf);
       } catch (e) {
         thrownError = e;
       }
-      if (!thrownError) {
+      if (!thrownError || badInst) {
         throw new Error(`new ${className} did not throw as indicated ${where}`);
       }
     } else {
